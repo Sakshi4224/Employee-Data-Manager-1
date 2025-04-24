@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Data Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        form input, form select, button {
+            margin: 5px;
+            padding: 8px;
+            width: calc(100% - 20px);
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Employee Data Manager</h2>
+        <form id="employee-form">
+            <input type="text" id="emp-id" placeholder="Employee ID" required>
+            <input type="text" id="name" placeholder="Employee Name" required>
+            <input type="text" id="department" placeholder="Department" required>
+            <input type="date" id="joining-date" required>
+            <button type="submit">Add Employee</button>
+        </form>
+        
+        <input type="text" id="search" placeholder="Search Employees...">
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Joining Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="employee-table"></tbody>
+        </table>
+        
+        <button id="export">Export to CSV</button>
+    </div>
+
+    <script>
+        document.getElementById("employee-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            let empId = document.getElementById("emp-id").value;
+            let name = document.getElementById("name").value;
+            let department = document.getElementById("department").value;
+            let joiningDate = document.getElementById("joining-date").value;
+            
+            if (empId && name && department && joiningDate) {
+                let table = document.getElementById("employee-table");
+                let row = table.insertRow();
+                row.insertCell(0).textContent = empId;
+                row.insertCell(1).textContent = name;
+                row.insertCell(2).textContent = department;
+                row.insertCell(3).textContent = joiningDate;
+                let deleteCell = row.insertCell(4);
+                let deleteBtn = document.createElement("button");
+                deleteBtn.textContent = "Delete";
+                deleteBtn.style.backgroundColor = "#dc3545";
+                deleteBtn.onclick = function() { table.deleteRow(row.rowIndex - 1); };
+                deleteCell.appendChild(deleteBtn);
+                
+                document.getElementById("employee-form").reset();
+            }
+        });
+
+        document.getElementById("export").addEventListener("click", function() {
+            let table = document.getElementsByTagName("table")[0];
+            let rows = Array.from(table.rows);
+            let csvContent = rows.map(row => Array.from(row.cells).map(cell => cell.textContent).join(",")).join("\n");
+            
+            let blob = new Blob([csvContent], { type: "text/csv" });
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "employees.csv";
+            a.click();
+        });
+
+        document.getElementById("search").addEventListener("keyup", function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.getElementById("employee-table").rows;
+            
+            for (let row of rows) {
+                let text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? "" : "none";
+            }
+        });
+    </script>
+</body>
+</html>
